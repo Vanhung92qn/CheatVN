@@ -5,6 +5,7 @@
 #include "ScannerBridge.h"
 #include "HexViewerForm.h"
 #include "BenchmarkForm.h"
+#include "HeatmapForm.h"
 
 namespace GUI {
 
@@ -66,6 +67,8 @@ namespace GUI {
 				gcnew EventHandler(this, &MainForm::OnHexViewClick);
 			this->btnBenchmark->Click +=
 				gcnew EventHandler(this, &MainForm::OnBenchmarkClick);
+			this->btnHeatmap->Click +=
+				gcnew EventHandler(this, &MainForm::OnHeatmapClick);
 
 			// State khởi đầu: chưa attach process → tắt scan UI
 			UpdateScanUIState();
@@ -97,6 +100,7 @@ namespace GUI {
 		System::Windows::Forms::Button^ btnLoadSession;
 		System::Windows::Forms::Button^ btnSaveSession;
 		System::Windows::Forms::Button^ btnBenchmark;
+		System::Windows::Forms::Button^ btnHeatmap;
 
 		// ─── Controls — scan input ──────────────────────────────
 		System::Windows::Forms::Panel^ pnlScanInput;
@@ -137,6 +141,7 @@ namespace GUI {
 			this->btnLoadSession = gcnew System::Windows::Forms::Button();
 			this->btnSaveSession = gcnew System::Windows::Forms::Button();
 			this->btnBenchmark = gcnew System::Windows::Forms::Button();
+			this->btnHeatmap = gcnew System::Windows::Forms::Button();
 			this->pnlScanInput = gcnew System::Windows::Forms::Panel();
 			this->lblValue = gcnew System::Windows::Forms::Label();
 			this->txtValue = gcnew System::Windows::Forms::TextBox();
@@ -170,6 +175,7 @@ namespace GUI {
 			// ─── pnlProcess ────────────────────────────────────
 			this->pnlProcess->Controls->Add(this->btnSaveSession);
 			this->pnlProcess->Controls->Add(this->btnLoadSession);
+			this->pnlProcess->Controls->Add(this->btnHeatmap);
 			this->pnlProcess->Controls->Add(this->btnBenchmark);
 			this->pnlProcess->Controls->Add(this->lblCurrentProcess);
 			this->pnlProcess->Controls->Add(this->btnChooseProcess);
@@ -190,6 +196,12 @@ namespace GUI {
 			this->lblCurrentProcess->Name = L"lblCurrentProcess";
 			this->lblCurrentProcess->Text = L"Chưa chọn tiến trình nào...";
 			this->lblCurrentProcess->AutoSize = false;
+
+			// ─── btnHeatmap ────────────────────────────────────
+			this->btnHeatmap->Location = System::Drawing::Point(850, 12);
+			this->btnHeatmap->Size = System::Drawing::Size(150, 32);
+			this->btnHeatmap->Name = L"btnHeatmap";
+			this->btnHeatmap->Text = L"🗺 Memory Map";
 
 			// ─── btnBenchmark ──────────────────────────────────
 			this->btnBenchmark->Location = System::Drawing::Point(1010, 12);
@@ -770,6 +782,18 @@ namespace GUI {
 		// =================================================================
 		//  OnHexViewClick — mở Hex Viewer cho địa chỉ đang chọn
 		// =================================================================
+		void OnHeatmapClick(Object^ sender, EventArgs^ e) {
+			if (_processHandle == IntPtr::Zero) {
+				MessageBox::Show(this,
+					L"Hãy attach 1 tiến trình trước.",
+					L"Chưa attach", MessageBoxButtons::OK, MessageBoxIcon::Information);
+				return;
+			}
+			String^ name = _currentProcess != nullptr ? _currentProcess->Name : L"(unknown)";
+			auto map = gcnew HeatmapForm(_processHandle, name);
+			map->ShowDialog(this);
+		}
+
 		void OnBenchmarkClick(Object^ sender, EventArgs^ e) {
 			if (_processHandle == IntPtr::Zero) {
 				MessageBox::Show(this,

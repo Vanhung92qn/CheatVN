@@ -82,6 +82,53 @@ namespace GUI {
     };
 
     // ─────────────────────────────────────────────────────────────────
+    //  ManagedMemoryRegion — wrap native MemoryRegion cho UI heatmap
+    // ─────────────────────────────────────────────────────────────────
+    public ref class ManagedMemoryRegion {
+    public:
+        property System::UInt64 BaseAddress;
+        property System::UInt64 Size;
+        property System::UInt32 Protection;
+        property System::UInt32 RegionState;
+        property System::UInt32 RegionType;
+        property bool IsReadable;
+        property bool IsWritable;
+        property bool IsImage;     // .exe/.dll loaded
+        property bool IsPrivate;   // heap/stack/private alloc
+        property bool IsMapped;    // file mapping
+
+        // Display props
+        property System::String^ AddressDisplay {
+            System::String^ get() { return "0x" + BaseAddress.ToString("X16"); }
+        }
+        property System::String^ SizeDisplay {
+            System::String^ get() {
+                if (Size < 1024) return Size + " B";
+                if (Size < 1024 * 1024) return (Size / 1024.0).ToString("F1") + " KB";
+                if (Size < 1024ULL * 1024 * 1024) return (Size / 1024.0 / 1024.0).ToString("F1") + " MB";
+                return (Size / 1024.0 / 1024.0 / 1024.0).ToString("F2") + " GB";
+            }
+        }
+        property System::String^ TypeDisplay {
+            System::String^ get() {
+                if (IsImage) return "Image (exe/dll)";
+                if (IsPrivate) return "Private (heap/stack)";
+                if (IsMapped) return "Mapped (file)";
+                return "Other";
+            }
+        }
+        property System::String^ ProtectionDisplay {
+            System::String^ get() {
+                System::String^ s = "";
+                if (IsReadable) s += "R";
+                if (IsWritable) s += "W";
+                if (s == "") s = "—";
+                return s;
+            }
+        }
+    };
+
+    // ─────────────────────────────────────────────────────────────────
     //  ScannerBridge — static class, entry point cho UI
     // ─────────────────────────────────────────────────────────────────
     public ref class ScannerBridge abstract sealed {
@@ -157,6 +204,11 @@ namespace GUI {
             ManagedScanOperator op,
             unsigned int numThreads,
             bool useSimd);
+
+        // ─── Enumerate all readable memory regions của process ───
+        // Dùng cho Memory Heatmap. Trả về List sorted theo BaseAddress.
+        static System::Collections::Generic::List<ManagedMemoryRegion^>^
+            EnumerateRegions(System::IntPtr hProcess);
     };
 
 } // namespace GUI

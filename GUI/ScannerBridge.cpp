@@ -303,6 +303,33 @@ namespace GUI {
     }
 
     // =================================================================
+    //  EnumerateRegions — list các vùng nhớ readable cho Heatmap
+    // =================================================================
+    List<ManagedMemoryRegion^>^ ScannerBridge::EnumerateRegions(IntPtr hProcess)
+    {
+        HANDLE h = (HANDLE)hProcess.ToPointer();
+        auto native = cheatvn::MemoryScanner::enumerateRegions(h);
+
+        auto result = gcnew List<ManagedMemoryRegion^>();
+        result->Capacity = (int)native.size();
+        for (const auto& r : native) {
+            auto m = gcnew ManagedMemoryRegion();
+            m->BaseAddress = r.baseAddress;
+            m->Size = r.size;
+            m->Protection = r.protection;
+            m->RegionState = r.state;
+            m->RegionType = r.type;
+            m->IsReadable = r.isReadable();
+            m->IsWritable = r.isWritable();
+            m->IsImage = r.isImage();
+            m->IsPrivate = r.isPrivate();
+            m->IsMapped = (r.type == MEM_MAPPED);
+            result->Add(m);
+        }
+        return result;
+    }
+
+    // =================================================================
     //  ReadBytes — đọc N bytes raw cho Hex Viewer
     // =================================================================
     // Pin managed array để truyền pointer cho native ReadProcessMemory.
