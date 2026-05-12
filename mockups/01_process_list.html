@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Mockup 01 — ProcessListForm</title>
+<style>
+  /* ====== Phong cách chung — bắt chước Windows Forms với dark theme ====== */
+  body {
+    background: #2b2b30;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    color: #ddd;
+    padding: 40px;
+    margin: 0;
+  }
+  .meta {
+    margin-bottom: 20px;
+    color: #888;
+    font-size: 13px;
+  }
+
+  /* ====== Cửa sổ Form (700 x 550) ====== */
+  .form {
+    width: 700px;
+    height: 550px;
+    background: #1e1e23;
+    color: #e8e8e8;
+    border: 1px solid #444;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    display: flex;
+    flex-direction: column;
+    font-size: 13px;
+  }
+  .titlebar {
+    background: #14141a;
+    padding: 8px 12px;
+    border-bottom: 1px solid #2a2a30;
+    color: #ddd;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .titlebar .controls {
+    color: #888;
+    letter-spacing: 6px;
+  }
+
+  /* ====== Search panel trên cùng ====== */
+  .toolbar {
+    background: #232328;
+    padding: 10px 12px;
+    border-bottom: 1px solid #2a2a30;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .toolbar label {
+    color: #aaa;
+    font-size: 12px;
+    margin-right: 4px;
+  }
+  .toolbar input {
+    flex: 1;
+    background: #14141a;
+    color: #e8e8e8;
+    border: 1px solid #3a3a44;
+    padding: 5px 8px;
+    font: 13px 'Segoe UI';
+  }
+  .toolbar input:focus { outline: 1px solid #4d8eff; }
+  .toolbar .checkbox {
+    color: #ccc;
+    font-size: 12px;
+  }
+
+  /* ====== DataGridView ====== */
+  .grid {
+    flex: 1;
+    overflow: auto;
+    background: #1a1a1f;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  th {
+    background: #2c2c34;
+    color: #ddd;
+    text-align: left;
+    padding: 6px 10px;
+    border-bottom: 1px solid #3a3a44;
+    border-right: 1px solid #3a3a44;
+    font-weight: normal;
+    user-select: none;
+  }
+  th:last-child { border-right: none; }
+  td {
+    padding: 5px 10px;
+    border-bottom: 1px solid #26262c;
+    color: #d0d0d0;
+  }
+  tr:nth-child(even) td { background: #1f1f24; }
+  tr.selected td { background: #2d4a73; color: #fff; }
+  tr.elevated td .badge { background: #5a3a1a; color: #ffc28c; }
+
+  .badge {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 2px;
+    font-size: 11px;
+    background: #2a3a4a;
+    color: #8bc4ff;
+  }
+  .badge.x64 { background: #1f3a2a; color: #7be09a; }
+  .badge.x86 { background: #3a2f1f; color: #f0c97a; }
+
+  .icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background: #444;
+    margin-right: 6px;
+    vertical-align: middle;
+    border-radius: 2px;
+  }
+  .icon.chrome { background: linear-gradient(45deg,#ea4335,#fbbc04,#34a853,#4285f4); }
+  .icon.code { background: #007acc; }
+  .icon.notepad { background: #4ec9b0; }
+  .icon.calc { background: #888; }
+  .icon.steam { background: #1b2838; border: 1px solid #66c0f4; }
+  .icon.discord { background: #5865f2; }
+  .icon.game { background: #c1272d; }
+  .icon.svc { background: #555; }
+
+  /* ====== Status bar + Buttons ====== */
+  .statusbar {
+    background: #232328;
+    border-top: 1px solid #2a2a30;
+    padding: 6px 12px;
+    color: #888;
+    font-size: 11px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .buttons {
+    background: #1e1e23;
+    padding: 10px 12px;
+    border-top: 1px solid #2a2a30;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .btn {
+    background: #2d2d36;
+    color: #e8e8e8;
+    border: 1px solid #4a4a55;
+    padding: 6px 18px;
+    font: 13px 'Segoe UI';
+    cursor: pointer;
+  }
+  .btn:hover { background: #3a3a44; }
+  .btn.primary {
+    background: #1e6fdb;
+    border-color: #2a83f5;
+    color: white;
+  }
+  .btn.primary:hover { background: #2a83f5; }
+  .btn:disabled { color: #666; cursor: not-allowed; }
+
+  /* ===== Bảng đặt tên control ===== */
+  .naming {
+    margin-top: 40px;
+    width: 700px;
+    background: #1e1e23;
+    border: 1px solid #444;
+    padding: 20px;
+    font-size: 13px;
+  }
+  .naming h2 {
+    color: #4d8eff;
+    margin-top: 0;
+    font-size: 16px;
+  }
+  .naming table { font-size: 12px; }
+  .naming th { background: #2c2c34; padding: 6px 10px; }
+  .naming td { padding: 5px 10px; vertical-align: top; }
+  .naming code {
+    background: #14141a;
+    color: #8bc4ff;
+    padding: 2px 6px;
+    border-radius: 2px;
+    font-family: Consolas, monospace;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="meta">
+  <strong>Mockup 01 — ProcessListForm</strong> · Dialog chọn tiến trình mục tiêu · 700 × 550 px
+</div>
+
+<!-- ============== FORM PREVIEW ============== -->
+<div class="form">
+
+  <!-- Title bar (WinForms tự vẽ, đây chỉ là mockup) -->
+  <div class="titlebar">
+    <span>Chọn tiến trình mục tiêu</span>
+    <span class="controls">─ ☐ ✕</span>
+  </div>
+
+  <!-- Toolbar: search + filter -->
+  <div class="toolbar">
+    <label>🔍 Tìm:</label>
+    <input type="text" placeholder="Nhập tên tiến trình hoặc PID..." value="">
+    <label class="checkbox"><input type="checkbox" checked> Ẩn system process</label>
+    <label class="checkbox"><input type="checkbox"> Chỉ x64</label>
+  </div>
+
+  <!-- DataGridView -->
+  <div class="grid">
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 60px;">PID</th>
+          <th>Tên tiến trình</th>
+          <th style="width: 70px;">Bitness</th>
+          <th style="width: 90px;">RAM</th>
+          <th style="width: 80px;">Trạng thái</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1234</td><td><span class="icon chrome"></span>chrome.exe</td><td><span class="badge x64">x64</span></td><td>1.2 GB</td><td>Sẵn sàng</td></tr>
+        <tr class="selected"><td>5678</td><td><span class="icon game"></span>Game.exe</td><td><span class="badge x64">x64</span></td><td>2.4 GB</td><td>Sẵn sàng</td></tr>
+        <tr><td>9012</td><td><span class="icon notepad"></span>notepad.exe</td><td><span class="badge x64">x64</span></td><td>12 MB</td><td>Sẵn sàng</td></tr>
+        <tr><td>3456</td><td><span class="icon calc"></span>calculator.exe</td><td><span class="badge x64">x64</span></td><td>28 MB</td><td>Sẵn sàng</td></tr>
+        <tr class="elevated"><td>7890</td><td><span class="icon svc"></span>services.exe</td><td><span class="badge x64">x64</span></td><td>156 MB</td><td><span class="badge">Cần quyền</span></td></tr>
+        <tr><td>2468</td><td><span class="icon code"></span>devenv.exe</td><td><span class="badge x64">x64</span></td><td>890 MB</td><td>Sẵn sàng</td></tr>
+        <tr><td>1357</td><td><span class="icon steam"></span>steam.exe</td><td><span class="badge x86">x86</span></td><td>340 MB</td><td>Sẵn sàng</td></tr>
+        <tr><td>8642</td><td><span class="icon discord"></span>Discord.exe</td><td><span class="badge x64">x64</span></td><td>180 MB</td><td>Sẵn sàng</td></tr>
+        <tr><td>4321</td><td><span class="icon game"></span>UnrealEngine.exe</td><td><span class="badge x64">x64</span></td><td>3.8 GB</td><td>Sẵn sàng</td></tr>
+        <tr><td>5566</td><td><span class="icon code"></span>cmd.exe</td><td><span class="badge x64">x64</span></td><td>4 MB</td><td>Sẵn sàng</td></tr>
+        <tr><td>7788</td><td><span class="icon code"></span>powershell.exe</td><td><span class="badge x64">x64</span></td><td>72 MB</td><td>Sẵn sàng</td></tr>
+        <tr><td>9900</td><td><span class="icon chrome"></span>msedge.exe</td><td><span class="badge x64">x64</span></td><td>640 MB</td><td>Sẵn sàng</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Status bar -->
+  <div class="statusbar">
+    <span>📊 247 tiến trình đang chạy · 1 được chọn (Game.exe, PID 5678)</span>
+    <span>↻ Tự refresh mỗi 2s</span>
+  </div>
+
+  <!-- Buttons -->
+  <div class="buttons">
+    <button class="btn">↻ Làm mới</button>
+    <button class="btn">Hủy</button>
+    <button class="btn primary">🎯 Mở tiến trình</button>
+  </div>
+
+</div>
+
+<!-- ============== BẢNG ĐẶT TÊN CONTROL ============== -->
+<div class="naming">
+  <h2>Bảng đặt tên các Control (kéo thả theo bảng này)</h2>
+  <p style="color:#aaa; font-size:12px;">
+    Quy tắc Hungarian: prefix viết thường (loại control) + Tên ý nghĩa (PascalCase).
+    VD <code>btnOpenProcess</code> = button + "Open Process".
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 140px;">Control</th>
+        <th style="width: 220px;">Name (property)</th>
+        <th>Mô tả &amp; setting quan trọng</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Form</strong></td><td><code>ProcessListForm</code></td><td>Tên class. Text = "Chọn tiến trình mục tiêu". FormBorderStyle=FixedDialog. StartPosition=CenterParent. Size=700×550.</td></tr>
+      <tr><td>Label "🔍 Tìm:"</td><td><code>lblSearch</code></td><td>Text = "🔍 Tìm:". AutoSize=true.</td></tr>
+      <tr><td>TextBox tìm kiếm</td><td><code>txtSearch</code></td><td>Anchor=Top|Left|Right. PlaceholderText = "Nhập tên tiến trình hoặc PID...". Sự kiện <code>TextChanged</code> → lọc list.</td></tr>
+      <tr><td>CheckBox</td><td><code>chkHideSystem</code></td><td>Text = "Ẩn system process". Checked=true mặc định.</td></tr>
+      <tr><td>CheckBox</td><td><code>chkX64Only</code></td><td>Text = "Chỉ x64". Checked=false mặc định.</td></tr>
+      <tr><td><strong>DataGridView</strong></td><td><code>dgvProcesses</code></td><td>5 cột (xem bên dưới). ReadOnly=true. SelectionMode=FullRowSelect. MultiSelect=false. AutoSizeColumnsMode=Fill. RowHeadersVisible=false. AllowUserToAddRows=false. Anchor=Top|Bottom|Left|Right.</td></tr>
+      <tr><td>↳ Cột 1</td><td><code>colPid</code></td><td>HeaderText="PID". Width=60. DataPropertyName="Pid".</td></tr>
+      <tr><td>↳ Cột 2</td><td><code>colName</code></td><td>HeaderText="Tên tiến trình". AutoSizeMode=Fill. DataPropertyName="Name".</td></tr>
+      <tr><td>↳ Cột 3</td><td><code>colBitness</code></td><td>HeaderText="Bitness". Width=70. DataPropertyName="Bitness".</td></tr>
+      <tr><td>↳ Cột 4</td><td><code>colRam</code></td><td>HeaderText="RAM". Width=90. DataPropertyName="WorkingSetMB".</td></tr>
+      <tr><td>↳ Cột 5</td><td><code>colStatus</code></td><td>HeaderText="Trạng thái". Width=80. DataPropertyName="Status".</td></tr>
+      <tr><td>StatusStrip</td><td><code>statusStrip</code></td><td>Dock=Bottom. Chứa 2 ToolStripStatusLabel.</td></tr>
+      <tr><td>↳ Label trái</td><td><code>lblStatusCount</code></td><td>Text = "0 tiến trình". Spring=true (đẩy label phải sát phải).</td></tr>
+      <tr><td>↳ Label phải</td><td><code>lblStatusAutoRefresh</code></td><td>Text = "↻ Tự refresh mỗi 2s".</td></tr>
+      <tr><td>Button Refresh</td><td><code>btnRefresh</code></td><td>Text = "↻ Làm mới". Anchor=Bottom|Right.</td></tr>
+      <tr><td>Button Cancel</td><td><code>btnCancel</code></td><td>Text = "Hủy". DialogResult=Cancel. Anchor=Bottom|Right.</td></tr>
+      <tr><td>Button Open</td><td><code>btnOpen</code></td><td>Text = "🎯 Mở tiến trình". DialogResult=OK. Anchor=Bottom|Right. <strong>Mặc định disabled</strong> đến khi user chọn 1 row.</td></tr>
+      <tr><td>Timer auto-refresh</td><td><code>timerRefresh</code></td><td>Component (kéo từ Toolbox vào). Interval=2000. Enabled=true. Sự kiện <code>Tick</code> → reload list.</td></tr>
+    </tbody>
+  </table>
+
+  <h2 style="margin-top:24px;">Form-level settings cần đặt</h2>
+  <table>
+    <tr><td style="width:200px;"><code>FormBorderStyle</code></td><td>FixedDialog (không cho resize, đúng phong cách dialog)</td></tr>
+    <tr><td><code>StartPosition</code></td><td>CenterParent (hiện giữa cửa sổ cha)</td></tr>
+    <tr><td><code>MinimizeBox</code></td><td>false</td></tr>
+    <tr><td><code>MaximizeBox</code></td><td>false</td></tr>
+    <tr><td><code>BackColor</code></td><td>30, 30, 35 (dark)</td></tr>
+    <tr><td><code>ForeColor</code></td><td>WhiteSmoke</td></tr>
+    <tr><td><code>Font</code></td><td>Segoe UI 9pt</td></tr>
+    <tr><td><code>AcceptButton</code></td><td>btnOpen (Enter = bấm Open)</td></tr>
+    <tr><td><code>CancelButton</code></td><td>btnCancel (Esc = bấm Cancel)</td></tr>
+    <tr><td><code>ShowInTaskbar</code></td><td>false</td></tr>
+  </table>
+
+  <h2 style="margin-top:24px;">Lưu ý khi thiết kế</h2>
+  <ul style="line-height: 1.7;">
+    <li><strong>Anchor properties</strong> rất quan trọng — đảm bảo form resize đúng. DataGridView phải anchor 4 phía, các button anchor Bottom|Right.</li>
+    <li><strong>Dark theme</strong>: WinForms cũ KHÔNG tự dark được. Phải set BackColor/ForeColor cho từng control. DataGridView cần set thêm <code>EnableHeadersVisualStyles=false</code>, <code>DefaultCellStyle.BackColor</code>, <code>ColumnHeadersDefaultCellStyle.BackColor</code>. Mình sẽ giúp viết code này sau.</li>
+    <li><strong>Icon trong cột Tên</strong>: cột Name dùng <code>DataGridViewImageColumn</code> hoặc custom paint. Phase 1 tạm thời chỉ hiển thị text, sang Phase 4 ta thêm icon.</li>
+    <li><strong>Emoji 🔍 🎯 ↻</strong>: hoạt động trong Segoe UI font, nhưng nếu xấu có thể đổi sang text "Search", "Open", "Refresh".</li>
+  </ul>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,76 @@
+# ========= Visual Studio / C++ project ignores =========
+
+# User-specific files (paths, debugger state, etc.)
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# Build output
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww]in32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio cache/options directory
+.vs/
+
+# IntelliSense cache
+ipch/
+*.aps
+*.ncb
+*.opensdf
+*.sdf
+*.cachefile
+*.VC.db
+*.VC.opendb
+
+# Build temporaries
+*.tlog
+*.lastbuildstate
+*.idb
+*.pdb
+*.ipdb
+*.iobj
+*.exp
+*.ilk
+*.obj
+*.tlb
+*.tli
+*.tlh
+*.res
+*.rsp
+
+# Static & dynamic libs (built artifacts — Core.lib will be regenerated)
+*.lib
+*.dll
+
+# Executable output
+*.exe
+
+# Resource compiler temp
+*.aps
+
+# CMake (just in case)
+CMakeCache.txt
+CMakeFiles/
+
+# OS junk
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Node / mockup tooling (just in case)
+node_modules/
