@@ -279,4 +279,41 @@ namespace GUI {
         return cheatvn::MemoryScanner::writeValue(h, address, sv);
     }
 
+    // =================================================================
+    //  ReadBytes — đọc N bytes raw cho Hex Viewer
+    // =================================================================
+    // Pin managed array để truyền pointer cho native ReadProcessMemory.
+    // pin_ptr giữ object không bị GC dời chỗ trong scope.
+    cli::array<Byte>^ ScannerBridge::ReadBytes(
+        IntPtr hProcess, UInt64 address, int count)
+    {
+        if (count <= 0) return gcnew cli::array<Byte>(0);
+
+        auto buffer = gcnew cli::array<Byte>(count);
+        HANDLE h = (HANDLE)hProcess.ToPointer();
+
+        // Pin array → managed pointer cố định trong vùng nhớ trong scope
+        pin_ptr<Byte> pin = &buffer[0];
+
+        SIZE_T bytesRead = 0;
+        BOOL ok = ReadProcessMemory(
+            h,
+            reinterpret_cast<LPCVOID>(address),
+            pin,
+            static_cast<SIZE_T>(count),
+            &bytesRead);
+
+        if (!ok && bytesRead == 0) {
+            return gcnew cli::array<Byte>(0);
+        }
+
+        // Nếu đọc partial, trả về sub-array đúng số bytes thực đọc
+        if ((int)bytesRead < count) {
+            auto trimmed = gcnew cli::array<Byte>((int)bytesRead);
+            System::Array::Copy(buffer, trimmed, (int)bytesRead);
+            return trimmed;
+        }
+        return buffer;
+    }
+
 } // namespace GUI

@@ -3,6 +3,7 @@
 #include "DarkTheme.h"
 #include "ProcessListForm.h"
 #include "ScannerBridge.h"
+#include "HexViewerForm.h"
 
 namespace GUI {
 
@@ -60,6 +61,8 @@ namespace GUI {
 				gcnew EventHandler(this, &MainForm::OnSaveSessionClick);
 			this->btnLoadSession->Click +=
 				gcnew EventHandler(this, &MainForm::OnLoadSessionClick);
+			this->btnHexView->Click +=
+				gcnew EventHandler(this, &MainForm::OnHexViewClick);
 
 			// State khởi đầu: chưa attach process → tắt scan UI
 			UpdateScanUIState();
@@ -103,6 +106,7 @@ namespace GUI {
 		System::Windows::Forms::Button^ btnNextScan;
 		System::Windows::Forms::Button^ btnReset;
 		System::Windows::Forms::Button^ btnEditValue;
+		System::Windows::Forms::Button^ btnHexView;
 		System::Windows::Forms::Label^ lblResultCount;
 		System::Windows::Forms::Timer^ timerRefresh;
 
@@ -139,6 +143,7 @@ namespace GUI {
 			this->btnNextScan = gcnew System::Windows::Forms::Button();
 			this->btnReset = gcnew System::Windows::Forms::Button();
 			this->btnEditValue = gcnew System::Windows::Forms::Button();
+			this->btnHexView = gcnew System::Windows::Forms::Button();
 			this->lblResultCount = gcnew System::Windows::Forms::Label();
 			this->timerRefresh = gcnew System::Windows::Forms::Timer(this->components);
 			this->dgvResults = gcnew System::Windows::Forms::DataGridView();
@@ -165,7 +170,7 @@ namespace GUI {
 			this->pnlProcess->Dock = System::Windows::Forms::DockStyle::Top;
 			this->pnlProcess->Location = System::Drawing::Point(0, 0);
 			this->pnlProcess->Name = L"pnlProcess";
-			this->pnlProcess->Size = System::Drawing::Size(1240, 56);
+			this->pnlProcess->Size = System::Drawing::Size(1400, 56);
 
 			// ─── btnChooseProcess ──────────────────────────────
 			this->btnChooseProcess->Location = System::Drawing::Point(12, 12);
@@ -181,19 +186,20 @@ namespace GUI {
 			this->lblCurrentProcess->AutoSize = false;
 
 			// ─── btnLoadSession ────────────────────────────────
-			this->btnLoadSession->Location = System::Drawing::Point(1010, 12);
+			this->btnLoadSession->Location = System::Drawing::Point(1170, 12);
 			this->btnLoadSession->Size = System::Drawing::Size(105, 32);
 			this->btnLoadSession->Name = L"btnLoadSession";
 			this->btnLoadSession->Text = L"Mở session";
 
 			// ─── btnSaveSession ────────────────────────────────
-			this->btnSaveSession->Location = System::Drawing::Point(1123, 12);
+			this->btnSaveSession->Location = System::Drawing::Point(1283, 12);
 			this->btnSaveSession->Size = System::Drawing::Size(105, 32);
 			this->btnSaveSession->Name = L"btnSaveSession";
 			this->btnSaveSession->Text = L"Lưu session";
 
 			// ─── pnlScanInput ──────────────────────────────────
 			this->pnlScanInput->Controls->Add(this->lblResultCount);
+			this->pnlScanInput->Controls->Add(this->btnHexView);
 			this->pnlScanInput->Controls->Add(this->btnEditValue);
 			this->pnlScanInput->Controls->Add(this->btnReset);
 			this->pnlScanInput->Controls->Add(this->btnNextScan);
@@ -207,7 +213,7 @@ namespace GUI {
 			this->pnlScanInput->Dock = System::Windows::Forms::DockStyle::Top;
 			this->pnlScanInput->Location = System::Drawing::Point(0, 56);
 			this->pnlScanInput->Name = L"pnlScanInput";
-			this->pnlScanInput->Size = System::Drawing::Size(1240, 90);
+			this->pnlScanInput->Size = System::Drawing::Size(1400, 90);
 
 			// ─── lblValue ──────────────────────────────────────
 			this->lblValue->AutoSize = true;
@@ -271,10 +277,17 @@ namespace GUI {
 			this->btnEditValue->Name = L"btnEditValue";
 			this->btnEditValue->Text = L"Sửa giá trị";
 
+			// ─── btnHexView ────────────────────────────────────
+			// Mở Hex Viewer cho địa chỉ đang chọn (xem 256 bytes raw + ASCII)
+			this->btnHexView->Location = System::Drawing::Point(1040, 36);
+			this->btnHexView->Size = System::Drawing::Size(110, 28);
+			this->btnHexView->Name = L"btnHexView";
+			this->btnHexView->Text = L"Xem Hex";
+
 			// ─── lblResultCount ────────────────────────────────
 			this->lblResultCount->AutoSize = false;
-			this->lblResultCount->Location = System::Drawing::Point(1040, 42);
-			this->lblResultCount->Size = System::Drawing::Size(180, 18);
+			this->lblResultCount->Location = System::Drawing::Point(1160, 42);
+			this->lblResultCount->Size = System::Drawing::Size(220, 18);
 			this->lblResultCount->Name = L"lblResultCount";
 			this->lblResultCount->Text = L"Chưa quét";
 			this->lblResultCount->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
@@ -360,7 +373,7 @@ namespace GUI {
 			// ─── Form ──────────────────────────────────────────
 			this->AutoScaleDimensions = System::Drawing::SizeF(7, 15);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(1240, 720);
+			this->ClientSize = System::Drawing::Size(1400, 720);
 			// Thứ tự Controls->Add: bottom-edge controls TRƯỚC, fill SAU
 			this->Controls->Add(this->statusStrip);
 			this->Controls->Add(this->dgvResults);
@@ -401,6 +414,11 @@ namespace GUI {
 			this->btnEditValue->FlatAppearance->BorderColor = DarkTheme::ChangedColor;
 			this->btnEditValue->FlatAppearance->MouseOverBackColor =
 				Color::FromArgb(255, 165, 130);
+
+			// btnHexView: secondary (xanh nhạt cho Address)
+			this->btnHexView->BackColor = DarkTheme::AddressColor;
+			this->btnHexView->ForeColor = Color::Black;
+			this->btnHexView->FlatAppearance->BorderColor = DarkTheme::AddressColor;
 
 			// Result count label dùng màu accent
 			this->lblResultCount->ForeColor = DarkTheme::Accent;
@@ -478,6 +496,7 @@ namespace GUI {
 			this->btnNextScan->Enabled = attached && hasResults;
 			this->btnReset->Enabled = hasResults;
 			this->btnEditValue->Enabled = attached && hasResults;
+			this->btnHexView->Enabled = attached && hasResults;
 		}
 
 		// =================================================================
@@ -736,6 +755,26 @@ namespace GUI {
 		//   - Tick (IsFrozen turn true): copy CurrentRaw → FrozenRaw
 		//     (giá trị tại thời điểm freeze sẽ được lock)
 		//   - Untick: không cần làm gì (timerFreeze sẽ skip row này)
+		// =================================================================
+		//  OnHexViewClick — mở Hex Viewer cho địa chỉ đang chọn
+		// =================================================================
+		void OnHexViewClick(Object^ sender, EventArgs^ e) {
+			if (this->dgvResults->SelectedRows->Count == 0) {
+				MessageBox::Show(this,
+					L"Hãy chọn 1 địa chỉ trong bảng để xem hex.",
+					L"Chưa chọn", MessageBoxButtons::OK, MessageBoxIcon::Information);
+				return;
+			}
+			auto row = this->dgvResults->SelectedRows[0];
+			if (row->DataBoundItem == nullptr) return;
+			auto result = safe_cast<ManagedScanResult^>(row->DataBoundItem);
+
+			// Mở HexViewerForm bắt đầu từ (address - 16) để có context trước
+			UInt64 startAddr = result->Address >= 16 ? result->Address - 16 : 0;
+			auto viewer = gcnew HexViewerForm(_processHandle, startAddr);
+			viewer->Show(this);  // non-modal: cho phép user tiếp tục dùng MainForm
+		}
+
 		// =================================================================
 		//  OnSaveSessionClick — lưu danh sách kết quả ra file .cvn
 		// =================================================================

@@ -138,6 +138,14 @@ namespace GUI {
             System::UInt64 address,
             ManagedValueType type,
             System::Int64 valueRaw);
+
+        // ─── Đọc N bytes raw tại 1 địa chỉ (cho Hex Viewer) ──────
+        // Trả về byte array có length = số bytes đọc được (có thể < count
+        // nếu chạm guard page hoặc region boundary).
+        static cli::array<System::Byte>^ ReadBytes(
+            System::IntPtr hProcess,
+            System::UInt64 address,
+            int count);
     };
 
 } // namespace GUI
