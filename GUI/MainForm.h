@@ -4,6 +4,7 @@
 #include "ProcessListForm.h"
 #include "ScannerBridge.h"
 #include "HexViewerForm.h"
+#include "BenchmarkForm.h"
 
 namespace GUI {
 
@@ -63,6 +64,8 @@ namespace GUI {
 				gcnew EventHandler(this, &MainForm::OnLoadSessionClick);
 			this->btnHexView->Click +=
 				gcnew EventHandler(this, &MainForm::OnHexViewClick);
+			this->btnBenchmark->Click +=
+				gcnew EventHandler(this, &MainForm::OnBenchmarkClick);
 
 			// State khởi đầu: chưa attach process → tắt scan UI
 			UpdateScanUIState();
@@ -93,6 +96,7 @@ namespace GUI {
 		System::Windows::Forms::Label^ lblCurrentProcess;
 		System::Windows::Forms::Button^ btnLoadSession;
 		System::Windows::Forms::Button^ btnSaveSession;
+		System::Windows::Forms::Button^ btnBenchmark;
 
 		// ─── Controls — scan input ──────────────────────────────
 		System::Windows::Forms::Panel^ pnlScanInput;
@@ -132,6 +136,7 @@ namespace GUI {
 			this->lblCurrentProcess = gcnew System::Windows::Forms::Label();
 			this->btnLoadSession = gcnew System::Windows::Forms::Button();
 			this->btnSaveSession = gcnew System::Windows::Forms::Button();
+			this->btnBenchmark = gcnew System::Windows::Forms::Button();
 			this->pnlScanInput = gcnew System::Windows::Forms::Panel();
 			this->lblValue = gcnew System::Windows::Forms::Label();
 			this->txtValue = gcnew System::Windows::Forms::TextBox();
@@ -165,6 +170,7 @@ namespace GUI {
 			// ─── pnlProcess ────────────────────────────────────
 			this->pnlProcess->Controls->Add(this->btnSaveSession);
 			this->pnlProcess->Controls->Add(this->btnLoadSession);
+			this->pnlProcess->Controls->Add(this->btnBenchmark);
 			this->pnlProcess->Controls->Add(this->lblCurrentProcess);
 			this->pnlProcess->Controls->Add(this->btnChooseProcess);
 			this->pnlProcess->Dock = System::Windows::Forms::DockStyle::Top;
@@ -184,6 +190,12 @@ namespace GUI {
 			this->lblCurrentProcess->Name = L"lblCurrentProcess";
 			this->lblCurrentProcess->Text = L"Chưa chọn tiến trình nào...";
 			this->lblCurrentProcess->AutoSize = false;
+
+			// ─── btnBenchmark ──────────────────────────────────
+			this->btnBenchmark->Location = System::Drawing::Point(1010, 12);
+			this->btnBenchmark->Size = System::Drawing::Size(150, 32);
+			this->btnBenchmark->Name = L"btnBenchmark";
+			this->btnBenchmark->Text = L"⚡ Benchmark";
 
 			// ─── btnLoadSession ────────────────────────────────
 			this->btnLoadSession->Location = System::Drawing::Point(1170, 12);
@@ -758,6 +770,17 @@ namespace GUI {
 		// =================================================================
 		//  OnHexViewClick — mở Hex Viewer cho địa chỉ đang chọn
 		// =================================================================
+		void OnBenchmarkClick(Object^ sender, EventArgs^ e) {
+			if (_processHandle == IntPtr::Zero) {
+				MessageBox::Show(this,
+					L"Hãy attach 1 tiến trình trước khi benchmark.",
+					L"Chưa attach", MessageBoxButtons::OK, MessageBoxIcon::Information);
+				return;
+			}
+			auto bench = gcnew BenchmarkForm(_processHandle);
+			bench->ShowDialog(this);
+		}
+
 		void OnHexViewClick(Object^ sender, EventArgs^ e) {
 			if (this->dgvResults->SelectedRows->Count == 0) {
 				MessageBox::Show(this,

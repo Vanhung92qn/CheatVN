@@ -280,6 +280,29 @@ namespace GUI {
     }
 
     // =================================================================
+    //  FirstScanBenchmark — chạy scan với cấu hình tùy chỉnh, chỉ trả count
+    // =================================================================
+    int ScannerBridge::FirstScanBenchmark(
+        IntPtr hProcess,
+        ManagedValueType type,
+        Int64 targetRaw,
+        ManagedScanOperator op,
+        unsigned int numThreads,
+        bool useSimd)
+    {
+        HANDLE h = (HANDLE)hProcess.ToPointer();
+        cheatvn::ScanValue target = decodeScanValue(targetRaw, type);
+        cheatvn::ScanOperator nop = (cheatvn::ScanOperator)(int)op;
+
+        cheatvn::MemoryScanner::ScanOptions opts;
+        opts.numThreads = numThreads;
+        opts.useSimd = useSimd;
+
+        auto results = cheatvn::MemoryScanner::firstScan(h, target, nop, opts);
+        return (int)results.size();
+    }
+
+    // =================================================================
     //  ReadBytes — đọc N bytes raw cho Hex Viewer
     // =================================================================
     // Pin managed array để truyền pointer cho native ReadProcessMemory.

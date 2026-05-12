@@ -340,11 +340,12 @@ namespace {
         const ScanValue& target,
         ScanOperator op,
         bool aligned,
+        bool useSimd,
         std::vector<ScanResult>& results,
         std::vector<uint8_t>& buffer)
     {
         // ─── Optimization: SIMD path cho Int32 + aligned ──────────
-        if (target.type == ValueType::Int32 && aligned) {
+        if (useSimd && target.type == ValueType::Int32 && aligned) {
             // Đọc memory vào buffer
             buffer.resize(static_cast<size_t>(region.size));
             SIZE_T bytesRead = 0;
@@ -486,7 +487,8 @@ std::vector<ScanResult> MemoryScanner::firstScan(
             threadResults[t].reserve(1024);
             for (const auto& region : bins[t]) {
                 dispatchScan(hProcess, region, target, op,
-                             opts.aligned, threadResults[t], buffer);
+                             opts.aligned, opts.useSimd,
+                             threadResults[t], buffer);
             }
         });
     }

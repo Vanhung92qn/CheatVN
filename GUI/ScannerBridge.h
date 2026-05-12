@@ -146,6 +146,17 @@ namespace GUI {
             System::IntPtr hProcess,
             System::UInt64 address,
             int count);
+
+        // ─── First scan với cấu hình tùy chỉnh (cho Benchmark) ───
+        // Cho phép control chính xác numThreads + useSimd để so sánh hiệu năng.
+        // Trả về số kết quả tìm được (không cần list — benchmark chỉ đo time).
+        static int FirstScanBenchmark(
+            System::IntPtr hProcess,
+            ManagedValueType type,
+            System::Int64 targetRaw,
+            ManagedScanOperator op,
+            unsigned int numThreads,
+            bool useSimd);
     };
 
 } // namespace GUI

@@ -50,6 +50,10 @@ public:
         // Giảm xuống 1 nếu muốn debug đơn luồng.
         // Tăng lên hơn số core không có lợi (CPU bound, không IO bound).
         unsigned int numThreads = 0;
+
+        // Bật SIMD AVX2 cho Int32 (Exact/NotEqual/GT/GE/LT/LE)?
+        // Default: true. Tắt khi benchmark để so sánh scalar vs SIMD.
+        bool useSimd = true;
     };
 
     // ─── Liệt kê các vùng nhớ readable của process ───────────────

@@ -132,6 +132,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BenchmarkForm.cpp" />
     <ClCompile Include="DarkTheme.cpp" />
     <ClCompile Include="HexViewerForm.cpp" />
     <ClCompile Include="MainForm.cpp" />
@@ -141,6 +142,7 @@
     <ClCompile Include="ScannerBridge.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BenchmarkForm.h" />
     <ClInclude Include="DarkTheme.h" />
     <ClInclude Include="HexViewerForm.h" />
     <ClInclude Include="MainForm.h">
