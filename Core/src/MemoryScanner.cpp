@@ -627,6 +627,84 @@ bool MemoryScanner::readValue(
     return ok && bytesRead == size;
 }
 
+// =====================================================================
+//  findPointersTo — quét memory tìm địa chỉ chứa pointer = targetAddress
+// =====================================================================
+//
+//  Pointer scanner đơn giản (depth 1): scan multi-thread, mỗi region đọc
+//  buffer và iterate aligned 8-byte. So sánh uint64_t với targetAddress.
+//
+//  Use case: HP address của game đổi mỗi lần restart. Nhưng pointer trỏ
+//  tới HP thường nằm trong static memory (không đổi). Tìm "ai trỏ tới HP"
+//  → có địa chỉ static để lock.
+//
+//  Đây là phiên bản depth 1 đơn giản (không follow chain). CE có depth 4-5
+//  với offset range — chúng ta không implement vì phức tạp.
+std::vector<uint64_t> MemoryScanner::findPointersTo(
+    HANDLE hProcess, uint64_t targetAddress)
+{
+    auto allRegions = enumerateRegions(hProcess);
+    if (allRegions.empty()) return {};
+
+    unsigned int nThreads = std::thread::hardware_concurrency();
+    if (nThreads == 0) nThreads = 4;
+    if (nThreads > allRegions.size()) nThreads = (unsigned int)allRegions.size();
+
+    // Sort regions desc theo size + greedy bin-packing (giống firstScan)
+    std::sort(allRegions.begin(), allRegions.end(),
+        [](const MemoryRegion& a, const MemoryRegion& b) { return a.size > b.size; });
+
+    std::vector<std::vector<MemoryRegion>> bins(nThreads);
+    std::vector<uint64_t> binBytes(nThreads, 0);
+    for (const auto& r : allRegions) {
+        size_t minIdx = 0;
+        for (size_t i = 1; i < nThreads; ++i)
+            if (binBytes[i] < binBytes[minIdx]) minIdx = i;
+        bins[minIdx].push_back(r);
+        binBytes[minIdx] += r.size;
+    }
+
+    std::vector<std::vector<uint64_t>> threadResults(nThreads);
+    std::vector<std::thread> workers;
+    for (unsigned int t = 0; t < nThreads; ++t) {
+        workers.emplace_back([&, t]() {
+            std::vector<uint8_t> buffer;
+            for (const auto& region : bins[t]) {
+                buffer.resize(static_cast<size_t>(region.size));
+                SIZE_T bytesRead = 0;
+                BOOL ok = ReadProcessMemory(
+                    hProcess, reinterpret_cast<LPCVOID>(region.baseAddress),
+                    buffer.data(), static_cast<SIZE_T>(region.size), &bytesRead);
+                if (!ok && bytesRead == 0) continue;
+                if (bytesRead < sizeof(uint64_t)) continue;
+
+                // Aligned 8-byte iterate
+                size_t lastIdx = bytesRead - sizeof(uint64_t);
+                for (size_t i = 0; i <= lastIdx; i += sizeof(uint64_t)) {
+                    uint64_t value;
+                    std::memcpy(&value, buffer.data() + i, sizeof(value));
+                    if (value == targetAddress) {
+                        threadResults[t].push_back(region.baseAddress + i);
+                    }
+                }
+            }
+        });
+    }
+    for (auto& w : workers) w.join();
+
+    // Merge
+    size_t total = 0;
+    for (const auto& tr : threadResults) total += tr.size();
+    std::vector<uint64_t> merged;
+    merged.reserve(total);
+    for (auto& tr : threadResults) {
+        merged.insert(merged.end(),
+            std::make_move_iterator(tr.begin()),
+            std::make_move_iterator(tr.end()));
+    }
+    return merged;
+}
+
 bool MemoryScanner::writeValue(
     HANDLE hProcess,
     uint64_t address,

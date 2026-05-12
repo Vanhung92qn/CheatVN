@@ -303,6 +303,22 @@ namespace GUI {
     }
 
     // =================================================================
+    //  FindPointersTo — pointer scanner depth 1
+    // =================================================================
+    List<UInt64>^ ScannerBridge::FindPointersTo(IntPtr hProcess, UInt64 targetAddress)
+    {
+        HANDLE h = (HANDLE)hProcess.ToPointer();
+        auto native = cheatvn::MemoryScanner::findPointersTo(h, targetAddress);
+
+        auto result = gcnew List<UInt64>();
+        result->Capacity = (int)native.size();
+        for (uint64_t addr : native) {
+            result->Add(addr);
+        }
+        return result;
+    }
+
+    // =================================================================
     //  EnumerateRegions — list các vùng nhớ readable cho Heatmap
     // =================================================================
     List<ManagedMemoryRegion^>^ ScannerBridge::EnumerateRegions(IntPtr hProcess)

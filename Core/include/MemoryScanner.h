@@ -103,6 +103,18 @@ public:
         uint64_t address,
         const ScanValue& value
     );
+
+    // ─── Tìm các địa chỉ CHỨA pointer trỏ tới targetAddress ────
+    // Pointer scanner đơn giản (depth 1):
+    //  - Quét toàn bộ memory aligned 8-byte
+    //  - Trả về list các địa chỉ mà tại đó lưu uint64 = targetAddress
+    //  - Multi-thread như firstScan
+    // Dùng để giải vấn đề "địa chỉ HP đổi sau khi restart game" — tìm
+    // pointer trỏ tới HP, pointer đó thường nằm trong static memory.
+    static std::vector<uint64_t> findPointersTo(
+        HANDLE hProcess,
+        uint64_t targetAddress
+    );
 };
 
 } // namespace cheatvn

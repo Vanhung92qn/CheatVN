@@ -6,6 +6,7 @@
 #include "HexViewerForm.h"
 #include "BenchmarkForm.h"
 #include "HeatmapForm.h"
+#include "PointerScannerForm.h"
 
 namespace GUI {
 
@@ -69,6 +70,8 @@ namespace GUI {
 				gcnew EventHandler(this, &MainForm::OnBenchmarkClick);
 			this->btnHeatmap->Click +=
 				gcnew EventHandler(this, &MainForm::OnHeatmapClick);
+			this->btnPointerScan->Click +=
+				gcnew EventHandler(this, &MainForm::OnPointerScanClick);
 
 			// State khởi đầu: chưa attach process → tắt scan UI
 			UpdateScanUIState();
@@ -115,6 +118,7 @@ namespace GUI {
 		System::Windows::Forms::Button^ btnReset;
 		System::Windows::Forms::Button^ btnEditValue;
 		System::Windows::Forms::Button^ btnHexView;
+		System::Windows::Forms::Button^ btnPointerScan;
 		System::Windows::Forms::Label^ lblResultCount;
 		System::Windows::Forms::Timer^ timerRefresh;
 
@@ -154,6 +158,7 @@ namespace GUI {
 			this->btnReset = gcnew System::Windows::Forms::Button();
 			this->btnEditValue = gcnew System::Windows::Forms::Button();
 			this->btnHexView = gcnew System::Windows::Forms::Button();
+			this->btnPointerScan = gcnew System::Windows::Forms::Button();
 			this->lblResultCount = gcnew System::Windows::Forms::Label();
 			this->timerRefresh = gcnew System::Windows::Forms::Timer(this->components);
 			this->dgvResults = gcnew System::Windows::Forms::DataGridView();
@@ -223,6 +228,7 @@ namespace GUI {
 
 			// ─── pnlScanInput ──────────────────────────────────
 			this->pnlScanInput->Controls->Add(this->lblResultCount);
+			this->pnlScanInput->Controls->Add(this->btnPointerScan);
 			this->pnlScanInput->Controls->Add(this->btnHexView);
 			this->pnlScanInput->Controls->Add(this->btnEditValue);
 			this->pnlScanInput->Controls->Add(this->btnReset);
@@ -304,14 +310,21 @@ namespace GUI {
 			// ─── btnHexView ────────────────────────────────────
 			// Mở Hex Viewer cho địa chỉ đang chọn (xem 256 bytes raw + ASCII)
 			this->btnHexView->Location = System::Drawing::Point(1040, 36);
-			this->btnHexView->Size = System::Drawing::Size(110, 28);
+			this->btnHexView->Size = System::Drawing::Size(95, 28);
 			this->btnHexView->Name = L"btnHexView";
 			this->btnHexView->Text = L"Xem Hex";
 
+			// ─── btnPointerScan ────────────────────────────────
+			// Tìm các địa chỉ trỏ tới địa chỉ đang chọn (Pointer Scanner depth 1)
+			this->btnPointerScan->Location = System::Drawing::Point(1145, 36);
+			this->btnPointerScan->Size = System::Drawing::Size(115, 28);
+			this->btnPointerScan->Name = L"btnPointerScan";
+			this->btnPointerScan->Text = L"Tìm pointer";
+
 			// ─── lblResultCount ────────────────────────────────
 			this->lblResultCount->AutoSize = false;
-			this->lblResultCount->Location = System::Drawing::Point(1160, 42);
-			this->lblResultCount->Size = System::Drawing::Size(220, 18);
+			this->lblResultCount->Location = System::Drawing::Point(1270, 42);
+			this->lblResultCount->Size = System::Drawing::Size(120, 18);
 			this->lblResultCount->Name = L"lblResultCount";
 			this->lblResultCount->Text = L"Chưa quét";
 			this->lblResultCount->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
@@ -521,6 +534,7 @@ namespace GUI {
 			this->btnReset->Enabled = hasResults;
 			this->btnEditValue->Enabled = attached && hasResults;
 			this->btnHexView->Enabled = attached && hasResults;
+			this->btnPointerScan->Enabled = attached && hasResults;
 		}
 
 		// =================================================================
@@ -782,6 +796,20 @@ namespace GUI {
 		// =================================================================
 		//  OnHexViewClick — mở Hex Viewer cho địa chỉ đang chọn
 		// =================================================================
+		void OnPointerScanClick(Object^ sender, EventArgs^ e) {
+			if (this->dgvResults->SelectedRows->Count == 0) {
+				MessageBox::Show(this,
+					L"Hãy chọn 1 địa chỉ để tìm pointer trỏ tới nó.",
+					L"Chưa chọn", MessageBoxButtons::OK, MessageBoxIcon::Information);
+				return;
+			}
+			auto row = this->dgvResults->SelectedRows[0];
+			if (row->DataBoundItem == nullptr) return;
+			auto result = safe_cast<ManagedScanResult^>(row->DataBoundItem);
+			auto ps = gcnew PointerScannerForm(_processHandle, result->Address);
+			ps->ShowDialog(this);
+		}
+
 		void OnHeatmapClick(Object^ sender, EventArgs^ e) {
 			if (_processHandle == IntPtr::Zero) {
 				MessageBox::Show(this,

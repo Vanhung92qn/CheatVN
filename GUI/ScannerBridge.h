@@ -209,6 +209,11 @@ namespace GUI {
         // Dùng cho Memory Heatmap. Trả về List sorted theo BaseAddress.
         static System::Collections::Generic::List<ManagedMemoryRegion^>^
             EnumerateRegions(System::IntPtr hProcess);
+
+        // ─── Tìm địa chỉ chứa pointer trỏ đến targetAddress ───
+        // Pointer scanner depth 1: scan multi-thread, return list addresses.
+        static System::Collections::Generic::List<System::UInt64>^
+            FindPointersTo(System::IntPtr hProcess, System::UInt64 targetAddress);
     };
 
 } // namespace GUI
