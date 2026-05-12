@@ -5,8 +5,15 @@
 #include <Psapi.h>         // GetProcessMemoryInfo
 #include <WtsApi32.h>      // (dự phòng cho phase sau)
 
-#pragma comment(lib, "Psapi.lib")
-// TlHelp32 nằm trong kernel32 nên không cần linker hint.
+// ─── Link với các thư viện Windows cần thiết ─────────────────────────
+// #pragma comment(lib, ...) bảo linker tự link với .lib mà không cần
+// thêm vào Project Properties → Linker → Input → Additional Dependencies.
+// Cách này tiện vì khai báo nằm cùng với code dùng API → dễ trace.
+#pragma comment(lib, "Psapi.lib")     // GetProcessMemoryInfo
+#pragma comment(lib, "Advapi32.lib")  // OpenProcessToken, AdjustTokenPrivileges,
+                                       // LookupPrivilegeValueW (token + privilege APIs)
+// TlHelp32 + IsWow64Process + OpenProcess + QueryFullProcessImageNameW
+// nằm trong kernel32.lib — VS auto-link, không cần khai báo.
 
 namespace cheatvn {
 

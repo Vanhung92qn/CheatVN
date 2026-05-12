@@ -21,9 +21,33 @@
     <ClCompile Include="Program.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ProcessListForm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcessManagerBridge.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DarkTheme.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScannerBridge.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainForm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProcessListForm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProcessManagerBridge.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DarkTheme.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScannerBridge.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

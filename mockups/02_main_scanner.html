@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Mockup 02 — Main Scanner Window</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0a0a0f;
+    font-family: 'Segoe UI', sans-serif;
+    color: #d0d0d8;
+    padding: 30px;
+    font-size: 12px;
+  }
+  .meta {
+    margin-bottom: 20px;
+    color: #888;
+  }
+
+  /* ============ Main Window 1280x800 ============ */
+  .app {
+    width: 1280px;
+    height: 800px;
+    background: #0d1117;
+    border: 1px solid #21262d;
+    display: grid;
+    grid-template-rows: 32px 56px 1fr 24px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+    font-size: 12px;
+  }
+
+  /* === Title bar === */
+  .titlebar {
+    background: #010409;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #21262d;
+    color: #8b949e;
+  }
+  .titlebar .logo { color: #58a6ff; font-weight: 600; }
+  .titlebar .logo::before { content: "⚡ "; }
+  .titlebar .controls { letter-spacing: 6px; color: #6e7681; }
+
+  /* === Toolbar (process info) === */
+  .toolbar {
+    background: #161b22;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1px solid #21262d;
+  }
+  .pill {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    padding: 5px 12px;
+    color: #c9d1d9;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .pill .dot { width: 8px; height: 8px; background: #3fb950; border-radius: 50%; box-shadow: 0 0 8px #3fb950; }
+  .pill.disconnected .dot { background: #f85149; box-shadow: 0 0 8px #f85149; }
+  .pill .key { color: #6e7681; font-size: 11px; }
+  .pill .val { color: #58a6ff; font-weight: 500; font-family: Consolas, monospace; }
+  .btn {
+    background: linear-gradient(180deg, #21262d, #161b22);
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+    padding: 6px 14px;
+    cursor: pointer;
+    font: 12px 'Segoe UI';
+    transition: all 0.15s;
+  }
+  .btn:hover { background: linear-gradient(180deg, #30363d, #21262d); border-color: #58a6ff; }
+  .btn.primary {
+    background: linear-gradient(180deg, #1f6feb, #1158c7);
+    border-color: #1f6feb;
+    color: white;
+  }
+  .btn.primary:hover { background: linear-gradient(180deg, #388bfd, #1f6feb); }
+  .btn.danger {
+    background: linear-gradient(180deg, #da3633, #b62324);
+    border-color: #da3633;
+    color: white;
+  }
+
+  /* === Main content area === */
+  .main {
+    display: grid;
+    grid-template-columns: 220px 1fr 320px;
+    overflow: hidden;
+  }
+
+  /* === Left sidebar (navigation) === */
+  .sidebar {
+    background: #010409;
+    border-right: 1px solid #21262d;
+    padding: 12px 0;
+  }
+  .nav-item {
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    color: #8b949e;
+    border-left: 2px solid transparent;
+    transition: background 0.1s;
+  }
+  .nav-item:hover { background: #161b22; color: #c9d1d9; }
+  .nav-item.active {
+    background: #161b22;
+    color: #58a6ff;
+    border-left-color: #58a6ff;
+  }
+  .nav-item .ico {
+    width: 18px;
+    text-align: center;
+    font-size: 14px;
+  }
+  .nav-section {
+    font-size: 10px;
+    color: #6e7681;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 16px 16px 6px;
+  }
+
+  /* === Center: Scanner main panel === */
+  .scanner {
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+    overflow: hidden;
+  }
+
+  /* Scan controls */
+  .scan-panel {
+    background: #161b22;
+    border-bottom: 1px solid #21262d;
+    padding: 12px 16px;
+    display: grid;
+    grid-template-columns: 1fr 140px;
+    gap: 12px;
+  }
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .label {
+    color: #6e7681;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .input, .select {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    padding: 7px 10px;
+    color: #c9d1d9;
+    font: 13px Consolas, monospace;
+  }
+  .input:focus, .select:focus { outline: none; border-color: #58a6ff; }
+  .row { display: flex; gap: 8px; }
+  .row > * { flex: 1; }
+
+  /* Scan operation buttons */
+  .scan-ops {
+    background: #0d1117;
+    border-bottom: 1px solid #21262d;
+    padding: 10px 16px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .op-btn {
+    background: #161b22;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+    padding: 6px 14px;
+    cursor: pointer;
+    font-size: 11px;
+  }
+  .op-btn:hover { background: #21262d; border-color: #6e7681; }
+  .op-btn.active { background: #1f6feb; border-color: #1f6feb; color: white; }
+
+  /* Results table */
+  .results {
+    overflow: auto;
+    background: #0d1117;
+  }
+  .results table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    font-family: Consolas, monospace;
+  }
+  .results th {
+    background: #161b22;
+    padding: 7px 10px;
+    text-align: left;
+    color: #8b949e;
+    border-bottom: 1px solid #30363d;
+    border-right: 1px solid #21262d;
+    font-weight: normal;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: sticky;
+    top: 0;
+  }
+  .results td {
+    padding: 5px 10px;
+    border-bottom: 1px solid #161b22;
+  }
+  .results tr:hover td { background: #161b22; }
+  .results tr.selected td { background: #1f4e78; color: white; }
+  .addr { color: #79c0ff; }
+  .val { color: #d2a8ff; }
+  .changed { color: #f78166; }
+
+  /* === Right sidebar: Watch list === */
+  .watch {
+    background: #010409;
+    border-left: 1px solid #21262d;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+  }
+  .watch-header {
+    background: #161b22;
+    padding: 10px 16px;
+    color: #c9d1d9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #21262d;
+  }
+  .watch-header h3 { font-size: 13px; font-weight: 500; }
+  .watch-header .count { color: #6e7681; font-size: 11px; }
+
+  .watch-list { overflow: auto; }
+  .watch-item {
+    padding: 10px 16px;
+    border-bottom: 1px solid #161b22;
+    display: grid;
+    grid-template-columns: 14px 1fr auto;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+  .watch-item:hover { background: #161b22; }
+  .watch-item .freeze {
+    width: 14px; height: 14px;
+    border: 1px solid #30363d;
+    display: grid;
+    place-items: center;
+    color: #6e7681;
+    font-size: 10px;
+  }
+  .watch-item.frozen .freeze { background: #58a6ff; color: white; border-color: #58a6ff; }
+  .watch-item .info { display: flex; flex-direction: column; gap: 2px; }
+  .watch-item .label-row { color: #c9d1d9; font-size: 11px; }
+  .watch-item .addr-row { color: #6e7681; font-family: Consolas, monospace; font-size: 10px; }
+  .watch-item .v {
+    color: #d2a8ff;
+    font-family: Consolas, monospace;
+    font-size: 12px;
+    text-align: right;
+  }
+  .watch-item.frozen .v { color: #58a6ff; }
+
+  .watch-footer { padding: 10px 16px; border-top: 1px solid #21262d; }
+
+  /* === Status bar === */
+  .statusbar {
+    background: #161b22;
+    border-top: 1px solid #21262d;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #6e7681;
+    font-size: 11px;
+  }
+  .statusbar .left { display: flex; gap: 16px; }
+  .statusbar .perf {
+    color: #3fb950;
+    font-family: Consolas, monospace;
+  }
+
+  /* === Performance badge floating === */
+  .perf-badge {
+    position: absolute;
+    margin-left: 1000px;
+    margin-top: 120px;
+    background: rgba(13, 17, 23, 0.95);
+    border: 1px solid #30363d;
+    padding: 8px 12px;
+    color: #3fb950;
+    font-family: Consolas, monospace;
+    font-size: 11px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  }
+</style>
+</head>
+<body>
+
+<div class="meta">
+  <strong>Mockup 02 — Main Scanner Window</strong> · Cửa sổ chính của CheatVN · 1280 × 800 px<br>
+  <span style="color:#666">Dark theme hacker style — không cần NuGet package, làm bằng custom paint code.</span>
+</div>
+
+<div class="app">
+
+  <!-- ====== Title bar ====== -->
+  <div class="titlebar">
+    <span class="logo">CheatVN <span style="color:#6e7681; font-weight:normal; margin-left:8px;">v0.1.0</span></span>
+    <span class="controls">─ ☐ ✕</span>
+  </div>
+
+  <!-- ====== Toolbar (process info) ====== -->
+  <div class="toolbar">
+    <div class="pill">
+      <span class="dot"></span>
+      <span class="key">Target:</span>
+      <span class="val">Game.exe</span>
+      <span class="key">PID</span>
+      <span class="val">5678</span>
+      <span class="key">x64</span>
+    </div>
+    <button class="btn">🎯 Đổi tiến trình</button>
+    <button class="btn danger">⏏ Ngắt kết nối</button>
+    <div style="flex:1"></div>
+    <button class="btn">📂 Mở session</button>
+    <button class="btn">💾 Lưu session</button>
+    <button class="btn primary">⚙ Cài đặt</button>
+  </div>
+
+  <!-- ====== Main content ====== -->
+  <div class="main">
+
+    <!-- ====== Left: Navigation ====== -->
+    <div class="sidebar">
+      <div class="nav-section">Tính năng</div>
+      <div class="nav-item active">
+        <span class="ico">🔍</span>
+        <span>Memory Scanner</span>
+      </div>
+      <div class="nav-item">
+        <span class="ico">📋</span>
+        <span>Watch List</span>
+      </div>
+      <div class="nav-item">
+        <span class="ico">🔢</span>
+        <span>Hex Viewer</span>
+      </div>
+      <div class="nav-item">
+        <span class="ico">🔗</span>
+        <span>Pointer Scanner</span>
+      </div>
+      <div class="nav-item">
+        <span class="ico">📊</span>
+        <span>Memory Map</span>
+      </div>
+
+      <div class="nav-section">Hệ thống</div>
+      <div class="nav-item">
+        <span class="ico">⚡</span>
+        <span>Benchmark</span>
+      </div>
+      <div class="nav-item">
+        <span class="ico">📜</span>
+        <span>Logs</span>
+      </div>
+    </div>
+
+    <!-- ====== Center: Scanner ====== -->
+    <div class="scanner">
+
+      <!-- Value entry panel -->
+      <div class="scan-panel">
+        <div class="row">
+          <div class="input-group">
+            <label class="label">Giá trị cần tìm</label>
+            <input class="input" type="text" value="100">
+          </div>
+          <div class="input-group">
+            <label class="label">Kiểu dữ liệu</label>
+            <select class="select">
+              <option>Int32 (4 bytes)</option>
+              <option>Int64 (8 bytes)</option>
+              <option>Float</option>
+              <option>Double</option>
+              <option>String UTF-16</option>
+              <option>Byte Array</option>
+            </select>
+          </div>
+        </div>
+        <div class="input-group">
+          <label class="label">Hành động</label>
+          <button class="btn primary" style="height:31px;">▶ Quét lần đầu</button>
+        </div>
+      </div>
+
+      <!-- Scan operations -->
+      <div class="scan-ops">
+        <button class="op-btn active">= Bằng</button>
+        <button class="op-btn">≠ Khác</button>
+        <button class="op-btn">&gt; Lớn hơn</button>
+        <button class="op-btn">&lt; Nhỏ hơn</button>
+        <button class="op-btn">↑ Tăng</button>
+        <button class="op-btn">↓ Giảm</button>
+        <button class="op-btn">~ Đã đổi</button>
+        <button class="op-btn">= Không đổi</button>
+      </div>
+
+      <!-- Results table -->
+      <div class="results">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:60px;">#</th>
+              <th>Địa chỉ</th>
+              <th>Giá trị hiện tại</th>
+              <th>Giá trị trước</th>
+              <th>Module</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td class="addr">0x7FF6_A4C8_1A20</td><td class="val">100</td><td>100</td><td>Game.exe + 0x1A20</td></tr>
+            <tr class="selected"><td>2</td><td class="addr">0x7FF6_A4D2_2A48</td><td class="val">100</td><td>100</td><td>Game.exe + 0xB088</td></tr>
+            <tr><td>3</td><td class="addr">0x000_1F2A_8800</td><td class="val changed">99</td><td>100</td><td>(heap)</td></tr>
+            <tr><td>4</td><td class="addr">0x000_1F2A_8810</td><td class="val">100</td><td>100</td><td>(heap)</td></tr>
+            <tr><td>5</td><td class="addr">0x000_1F2A_88D0</td><td class="val">100</td><td>100</td><td>(heap)</td></tr>
+            <tr><td>6</td><td class="addr">0x000_2A12_FB30</td><td class="val">100</td><td>100</td><td>UnityPlayer.dll + 0x4A30</td></tr>
+            <tr><td>7</td><td class="addr">0x000_2A12_FB40</td><td class="val changed">95</td><td>100</td><td>UnityPlayer.dll + 0x4A40</td></tr>
+            <tr><td>8</td><td class="addr">0x000_3F18_2200</td><td class="val">100</td><td>100</td><td>mono-2.0-bdwgc.dll</td></tr>
+            <tr><td>9</td><td class="addr">0x000_3F18_2210</td><td class="val">100</td><td>100</td><td>mono-2.0-bdwgc.dll</td></tr>
+            <tr><td>10</td><td class="addr">0x000_4A55_C000</td><td class="val">100</td><td>100</td><td>(stack)</td></tr>
+            <tr><td>11</td><td class="addr">0x000_5B66_1100</td><td class="val">100</td><td>100</td><td>(heap)</td></tr>
+            <tr><td>12</td><td class="addr">0x000_5B66_1110</td><td class="val">100</td><td>100</td><td>(heap)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ====== Right: Watch list ====== -->
+    <div class="watch">
+      <div class="watch-header">
+        <h3>Theo dõi</h3>
+        <span class="count">3 địa chỉ · 1 đóng băng</span>
+      </div>
+      <div class="watch-list">
+        <div class="watch-item frozen">
+          <div class="freeze">✓</div>
+          <div class="info">
+            <div class="label-row">HP nhân vật</div>
+            <div class="addr-row">0x7FF6_A4C8_1A20 (Int32)</div>
+          </div>
+          <div class="v">9999</div>
+        </div>
+        <div class="watch-item">
+          <div class="freeze"></div>
+          <div class="info">
+            <div class="label-row">Tiền</div>
+            <div class="addr-row">0x7FF6_A4D2_2A48 (Int32)</div>
+          </div>
+          <div class="v">15,420</div>
+        </div>
+        <div class="watch-item">
+          <div class="freeze"></div>
+          <div class="info">
+            <div class="label-row">Đạn</div>
+            <div class="addr-row">0x000_3F18_2210 (Int16)</div>
+          </div>
+          <div class="v">87</div>
+        </div>
+      </div>
+      <div class="watch-footer">
+        <button class="btn" style="width:100%;">+ Thêm địa chỉ thủ công</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== Status bar ====== -->
+  <div class="statusbar">
+    <div class="left">
+      <span>📊 4,287 kết quả · 32 region quét</span>
+      <span>🕐 Quét lần cuối: 0.18s</span>
+    </div>
+    <span class="perf">⚡ 8 threads · AVX2 · 12.4 GB/s</span>
+  </div>
+
+</div>
+
+<!-- ============ DESIGN NOTES ============ -->
+<div style="margin-top:40px; max-width: 1280px;">
+  <h2 style="color:#58a6ff; font-weight:500; font-size:18px; margin-bottom:14px;">Ghi chú thiết kế</h2>
+
+  <h3 style="color:#c9d1d9; margin: 16px 0 8px;">Bảng màu</h3>
+  <div style="display:grid; grid-template-columns:repeat(6, 1fr); gap:12px;">
+    <div><div style="background:#0a0a0f; height:40px; border:1px solid #30363d;"></div><div style="font-family:Consolas; margin-top:4px;">#0a0a0f<br><span style="color:#888;">App bg</span></div></div>
+    <div><div style="background:#0d1117; height:40px; border:1px solid #30363d;"></div><div style="font-family:Consolas; margin-top:4px;">#0d1117<br><span style="color:#888;">Window</span></div></div>
+    <div><div style="background:#161b22; height:40px; border:1px solid #30363d;"></div><div style="font-family:Consolas; margin-top:4px;">#161b22<br><span style="color:#888;">Surface</span></div></div>
+    <div><div style="background:#21262d; height:40px; border:1px solid #30363d;"></div><div style="font-family:Consolas; margin-top:4px;">#21262d<br><span style="color:#888;">Hover</span></div></div>
+    <div><div style="background:#30363d; height:40px; border:1px solid #30363d;"></div><div style="font-family:Consolas; margin-top:4px;">#30363d<br><span style="color:#888;">Border</span></div></div>
+    <div><div style="background:#58a6ff; height:40px; border:1px solid #30363d;"></div><div style="font-family:Consolas; margin-top:4px;">#58a6ff<br><span style="color:#888;">Accent</span></div></div>
+    <div><div style="background:#3fb950; height:40px; border:1px solid #30363d;"></div><div style="font-family:Consolas; margin-top:4px;">#3fb950<br><span style="color:#888;">Success</span></div></div>
+    <div><div style="background:#f85149; height:40px; border:1px solid #30363d;"></div><div style="font-family:Consolas; margin-top:4px;">#f85149<br><span style="color:#888;">Danger</span></div></div>
+    <div><div style="background:#d2a8ff; height:40px; border:1px solid #30363d;"></div><div style="font-family:Consolas; margin-top:4px;">#d2a8ff<br><span style="color:#888;">Value</span></div></div>
+    <div><div style="background:#79c0ff; height:40px; border:1px solid #30363d;"></div><div style="font-family:Consolas; margin-top:4px;">#79c0ff<br><span style="color:#888;">Address</span></div></div>
+    <div><div style="background:#f78166; height:40px; border:1px solid #30363d;"></div><div style="font-family:Consolas; margin-top:4px;">#f78166<br><span style="color:#888;">Changed</span></div></div>
+    <div><div style="background:#c9d1d9; height:40px; border:1px solid #30363d;"></div><div style="font-family:Consolas; margin-top:4px;">#c9d1d9<br><span style="color:#888;">Text</span></div></div>
+  </div>
+
+  <h3 style="color:#c9d1d9; margin: 24px 0 8px;">Font</h3>
+  <table style="width:100%; border-collapse:collapse;">
+    <tr style="border-bottom:1px solid #30363d;">
+      <td style="padding:8px;"><strong>Segoe UI</strong> 9pt</td>
+      <td style="padding:8px; color:#8b949e;">Toàn bộ UI text (label, button, menu)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #30363d;">
+      <td style="padding:8px;"><strong style="font-family:Consolas;">Consolas / JetBrains Mono</strong> 11pt</td>
+      <td style="padding:8px; color:#8b949e;">Địa chỉ memory, giá trị, hex (cần monospace để align)</td>
+    </tr>
+  </table>
+
+  <h3 style="color:#c9d1d9; margin: 24px 0 8px;">Quy tắc tạo dark theme bằng code</h3>
+  <ul style="line-height:1.8; padding-left:20px;">
+    <li>Mọi Form: set <code style="background:#161b22; padding:1px 6px;">BackColor = (13, 17, 23)</code>, <code style="background:#161b22; padding:1px 6px;">ForeColor = (201, 209, 217)</code></li>
+    <li>Button thường: tạo class <code>FlatButton</code> kế thừa <code>Button</code>, override <code>OnPaint</code>. <code>FlatStyle = Flat</code> + custom border (gradient).</li>
+    <li>DataGridView: phải set thêm <code>EnableHeadersVisualStyles = false</code>, gán <code>ColumnHeadersDefaultCellStyle.BackColor</code>, <code>DefaultCellStyle.BackColor</code>, <code>GridColor</code>.</li>
+    <li>TextBox dark khó hơn: phải tạo <code>UserControl</code> bọc TextBox + Border thủ công (vì TextBox không có Border property).</li>
+    <li>ListBox / DataGridView: <code>RowHeadersVisible = false</code>, <code>CellBorderStyle = SingleHorizontal</code>.</li>
+    <li>Mọi panel: <code>BackColor</code> đồng nhất, tạo cảm giác "layer" — vùng đậm hơn ở ngoài, vùng nhạt hơn ở giữa.</li>
+  </ul>
+
+  <h3 style="color:#c9d1d9; margin: 24px 0 8px;">Custom paint kỹ thuật quan trọng</h3>
+  <p style="color:#8b949e; line-height:1.6;">Để có button đẹp như mockup (gradient + hover effect), không thể chỉ set BackColor. Phải kế thừa <code>Button</code> và override:</p>
+  <pre style="background:#0d1117; border:1px solid #30363d; padding:12px; margin-top:8px; overflow-x:auto;"><code style="color:#c9d1d9; font-family:Consolas; font-size:12px;">protected: virtual void OnPaint(PaintEventArgs^ e) override {
+    auto g = e->Graphics;
+    g->SmoothingMode = SmoothingMode::AntiAlias;
+
+    // Vẽ background gradient
+    auto rect = ClientRectangle;
+    auto brush = gcnew LinearGradientBrush(rect,
+        Color::FromArgb(33, 38, 45),
+        Color::FromArgb(22, 27, 34),
+        LinearGradientMode::Vertical);
+    g->FillRectangle(brush, rect);
+
+    // Vẽ border
+    auto pen = gcnew Pen(Color::FromArgb(48, 54, 61));
+    g->DrawRectangle(pen, 0, 0, Width - 1, Height - 1);
+
+    // Vẽ text
+    TextRenderer::DrawText(g, Text, Font, rect,
+        Color::FromArgb(201, 209, 217),
+        TextFormatFlags::HorizontalCenter | TextFormatFlags::VerticalCenter);
+
+    delete brush; delete pen;
+}</code></pre>
+
+  <h3 style="color:#c9d1d9; margin: 24px 0 8px;">Lý do KHÔNG dùng NuGet package cho dự án này</h3>
+  <ol style="line-height:1.8; padding-left:20px; color:#c9d1d9;">
+    <li><strong>C++/CLI + NuGet = nhiều bug</strong>: Microsoft hiện chỉ hỗ trợ tốt NuGet cho C# / VB.NET. C++/CLI có .vcxproj khác với .csproj, NuGet không tự động cấu hình references đúng.</li>
+    <li><strong>Designer không hỗ trợ custom controls C++/CLI</strong>: dù cài MaterialSkin / Guna OK, khi drag-drop vào ProcessListForm sẽ thường báo lỗi "Could not load type". Phải khởi tạo bằng code.</li>
+    <li><strong>Demo cho thầy</strong>: nếu thầy chạy trên máy không có DLL → app fail. Self-contained luôn an toàn hơn.</li>
+    <li><strong>Học thuật</strong>: tự code custom paint → cộng điểm. Dùng thư viện = không học gì về GDI+.</li>
+  </ol>
+</div>
+
+</body>
+</html>

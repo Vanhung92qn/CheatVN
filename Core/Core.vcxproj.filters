@@ -19,6 +19,12 @@
     <Filter Include="Source Files\Process">
       <UniqueIdentifier>{a1b2c3d4-2222-2222-2222-222222222222}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Scanner">
+      <UniqueIdentifier>{a1b2c3d4-3333-3333-3333-333333333333}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Scanner">
+      <UniqueIdentifier>{a1b2c3d4-4444-4444-4444-444444444444}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -33,6 +39,15 @@
     <ClInclude Include="include\ProcessManager.h">
       <Filter>Header Files\Process</Filter>
     </ClInclude>
+    <ClInclude Include="include\MemoryRegion.h">
+      <Filter>Header Files\Scanner</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ScanTypes.h">
+      <Filter>Header Files\Scanner</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MemoryScanner.h">
+      <Filter>Header Files\Scanner</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core.cpp">
@@ -43,6 +58,9 @@
     </ClCompile>
     <ClCompile Include="src\ProcessManager.cpp">
       <Filter>Source Files\Process</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MemoryScanner.cpp">
+      <Filter>Source Files\Scanner</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
